@@ -17,6 +17,7 @@ fn main() {
     let mut clients = vec![];
     let (tx, rx) = mpsc::channel::<String>();
     loop {
+        // 一旦有新的客户端连接，Ok接收一个socket和addr
         if let Ok((mut socket, addr)) = server.accept() {
             println!("Client {} connected", addr);
 
