@@ -12,7 +12,9 @@ fn sleep() {
 
 fn main() {
     let server = TcpListener::bind(LOCAL).expect("Listener failed to bind");
-    server.set_nonblocking(true).expect("failed to initialize non-blocking");
+    server
+        .set_nonblocking(true)
+        .expect("failed to initialize non-blocking");
 
     let mut clients = vec![];
     let (tx, rx) = mpsc::channel::<String>();
@@ -33,7 +35,7 @@ fn main() {
 
                         println!("{}: {:?}", addr, msg);
                         tx.send(msg).expect("failed to send msg to rx");
-                    }, 
+                    }
                     Err(ref err) if err.kind() == ErrorKind::WouldBlock => (),
                     Err(_) => {
                         println!("closing connection with: {}", addr);
@@ -46,12 +48,15 @@ fn main() {
         }
 
         if let Ok(msg) = rx.try_recv() {
-            clients = clients.into_iter().filter_map(|mut client| {
-                let mut buff = msg.clone().into_bytes();
-                buff.resize(MSG_SIZE, 0);
+            clients = clients
+                .into_iter()
+                .filter_map(|mut client| {
+                    let mut buff = msg.clone().into_bytes();
+                    buff.resize(MSG_SIZE, 0);
 
-                client.write_all(&buff).map(|_| client).ok()
-            }).collect::<Vec<_>>();
+                    client.write_all(&buff).map(|_| client).ok()
+                })
+                .collect::<Vec<_>>();
         }
 
         sleep();
